@@ -1,0 +1,81 @@
+#[derive(Debug)]
+pub enum Categories {
+    AllCategories,
+    Anime,
+    AnimeMusicVideo,
+    AnimeEnglishTranslated,
+    AnimeNonEnglishTranslated,
+    AnimeRaw,
+    Audio,
+    AudioLossLess,
+    AudioLossy,
+    Literature,
+    LiteratureEnglishTranslated,
+    LiteratureNonEnglishTranslated,
+    LiteratureRaw,
+    LiveAction,
+    LiveActionEnglishTranslated,
+    LiveActionNonEnglishTranslated,
+    LiveActionIdolePromotionalVideo,
+    LiveActionRaw,
+    Pictures,
+    PicturesGraphics,
+    PicturesPhotos,
+    Software,
+    SoftwareApplications,
+    SoftwareGames,
+}
+
+impl Categories {
+    pub fn value(&self) -> String {
+        match *self {
+            Categories::AllCategories => "0_0".to_string(),
+            Categories::Anime => "1_0".to_string(),
+            Categories::AnimeMusicVideo => "1_1".to_string(),
+            Categories::AnimeEnglishTranslated => "1_2".to_string(),
+            Categories::AnimeNonEnglishTranslated => "1_3".to_string(),
+            Categories::AnimeRaw => "1_4".to_string(),
+            Categories::Audio => "2_0".to_string(),
+            Categories::AudioLossLess => "2_1".to_string(),
+            Categories::AudioLossy => "2_1".to_string(),
+            Categories::Literature => "3_0".to_string(),
+            Categories::LiteratureEnglishTranslated => "3_1".to_string(),
+            Categories::LiteratureNonEnglishTranslated => "3_2".to_string(),
+            Categories::LiteratureRaw => "3_3".to_string(),
+            Categories::LiveAction => "4_0".to_string(),
+            Categories::LiveActionEnglishTranslated => "4_1".to_string(),
+            Categories::LiveActionIdolePromotionalVideo => "4_2".to_string(),
+            Categories::LiveActionNonEnglishTranslated => "4_3".to_string(),
+            Categories::LiveActionRaw => "4_4".to_string(),
+            Categories::Pictures => "5_0".to_string(),
+            Categories::PicturesGraphics => "5_1".to_string(),
+            Categories::PicturesPhotos => "5_2".to_string(),
+            Categories::Software => "6_0".to_string(),
+            Categories::SoftwareApplications => "6_1".to_string(),
+            Categories::SoftwareGames => "6_2".to_string(),
+        }
+    }
+
+    pub fn parse(value: &str) -> Categories {
+        match value {
+            "Anime - Anime Music Video" => Categories::AnimeMusicVideo,
+            "Anime - English-translated" => Categories::AnimeEnglishTranslated,
+            "Anime - Non-English-translated" => Categories::AnimeEnglishTranslated,
+            "Anime - Raw" => Categories::AnimeRaw,
+            "Audio - Lossless" => Categories::AudioLossLess,
+            "Audio - Lossy" => Categories::AudioLossy,
+            "Literature - English-translated" => Categories::LiteratureEnglishTranslated,
+            "Literature - Non-English-translated" => Categories::LiteratureNonEnglishTranslated,
+            "Literature - Raw" => Categories::LiteratureRaw,
+            "Live Action - English-translated" => Categories::LiveActionEnglishTranslated,
+            "Live Action - Non-English-translated" => Categories::LiveActionNonEnglishTranslated,
+            "Live Action - Idol/Promotional Video" => Categories::LiveActionIdolePromotionalVideo,
+            "Live Action - Raw" => Categories::LiveActionRaw,
+            "Pictures - Graphics" => Categories::PicturesGraphics,
+            "Pictures - Photos" => Categories::PicturesPhotos,
+            "Software - Applications" => Categories::SoftwareApplications,
+            "Software - Games" => Categories::SoftwareGames,
+            &_ => Categories::AllCategories,
+        }
+    }
+}
