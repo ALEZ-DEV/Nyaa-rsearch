@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, num::FpCategory};
 
 pub mod models;
 use models::{categories::Categories, torrent::Torrent};
@@ -113,4 +113,17 @@ pub struct SearchResult {
     torrents: Vec<Torrent>,
 }
 
-impl SearchResult {}
+impl SearchResult {
+    pub fn info(&self) -> String {
+        let search = format!("search -> {}\n", self.search);
+        let category = format!("category -> {:?}\n", self.category);
+        let page = format!("page -> {}\n", self.current_page);
+        let max_page = format!("max page -> {}\n", self.page_max);
+        let first_torrent = format!(
+            "------first torrent------\n{}\n-------------------------\n",
+            self.torrents[0].info()
+        );
+        let other_nbr_torrent = format!("{} other torrent\n", self.torrents.len());
+        format!("{search}{category}{page}{max_page}{first_torrent}{other_nbr_torrent}")
+    }
+}
