@@ -1,7 +1,7 @@
 use std::{error::Error, num::FpCategory};
 
 pub mod models;
-use models::{categories::Categories, torrent::Torrent};
+use models::{categories::Categories, error::NyaaError, torrent::Torrent};
 use scraper::{ElementRef, Html, Selector};
 
 const url: &str = "https://nyaa.si";
@@ -25,7 +25,7 @@ pub fn search(input: &str, category: Categories) -> Result<SearchResult, Box<dyn
     let result = SearchResult {
         search: input.to_string(),
         category: category,
-        current_page: 0,
+        current_page: 1,
         page_max: max_pagination,
         torrents: all_torrent,
     };
@@ -116,6 +116,19 @@ pub struct SearchResult {
 }
 
 impl SearchResult {
+    fn request(&mut self) -> Result<(), Box<dyn Error>> {
+        let query = build_url(&self.search, &self.category, &self.current_page);
+
+        let response = reqwest::blocking::get(query)?.text()?;
+
+        let document = Html::parse_document(&response);
+        let all_torrent = get_all_torrent(&document)?;
+
+        self.torrents = all_torrent;
+
+        Ok(())
+    }
+
     pub fn info(&self) -> String {
         let search = format!("search -> {}\n", self.search);
         let category = format!("category -> {:?}\n", self.category);
@@ -127,5 +140,25 @@ impl SearchResult {
         );
         let other_nbr_torrent = format!("{} other torrent\n", self.torrents.len());
         format!("{search}{category}{page}{max_page}{first_torrent}{other_nbr_torrent}")
+    }
+
+    pub fn next_page(&mut self) -> Result<(), Box<dyn Error>> {
+        if (self.current_page > self.page_max) {
+            return Err(Box::new(NyaaError::ImpossibleNext));
+        }
+        self.current_page += 1;
+        self.request()?;
+
+        Ok(())
+    }
+
+    pub fn previous_page(&mut self) -> Result<(), Box<dyn Error>> {
+        if (self.current_page - 1 < 1) {
+            return Err(Box::new(NyaaError::ImpossiblePrevious));
+        }
+        self.current_page -= 1;
+        self.request()?;
+
+        Ok(())
     }
 }
