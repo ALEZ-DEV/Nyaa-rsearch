@@ -66,12 +66,14 @@ fn get_all_torrent(document: &Html) -> Result<Vec<Torrent>, Box<dyn Error>> {
         let td_array: Vec<ElementRef> = tr.select(&td_selector).collect();
 
         let torrent_links: Vec<ElementRef> = td_array[2].select(&a_selector).collect();
+        let a_name: Vec<ElementRef> = td_array[1].select(&a_selector).collect();
+        let mut name_index = 0;
+        if a_name.len() >= 2 {
+            name_index = 1;
+        }
 
         let torrent = Torrent {
-            name: td_array[1]
-                .select(&a_selector)
-                .next()
-                .unwrap()
+            name: a_name[name_index]
                 .value()
                 .attr("title")
                 .unwrap()
