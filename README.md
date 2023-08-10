@@ -88,7 +88,7 @@ nbrs of approved -> 220
 
 To install this library simply do 
 ```
-cargo install nyaa-rsearch
+cargo add nyaa-rsearch
 ```
 
 ## Contribute

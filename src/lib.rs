@@ -1,4 +1,4 @@
-use std::{error::Error, num::FpCategory};
+use std::error::Error;
 
 pub mod models;
 use models::{categories::Categories, error::NyaaError, torrent::Torrent};
@@ -11,7 +11,7 @@ fn build_url(input: &str, category: &Categories, page: &i64) -> String {
     let category = format!("c={}", category.value());
     let page = format!("p={}", page);
 
-    format!("{}/?{}&{}&{}", url, research, category, page)
+    format!("{}/?{}&{}&{}", URL, research, category, page)
 }
 
 pub fn search(input: &str, category: Categories) -> Result<SearchResult, Box<dyn Error>> {
@@ -87,7 +87,7 @@ fn get_all_torrent(document: &Html) -> Result<Vec<Torrent>, Box<dyn Error>> {
                     .attr("title")
                     .unwrap(),
             ),
-            torrent_file: format!("{}{}", url, torrent_links[0].value().attr("href").unwrap()),
+            torrent_file: format!("{}{}", URL, torrent_links[0].value().attr("href").unwrap()),
             magnet_link: torrent_links[1].value().attr("href").unwrap().to_string(),
             size: td_array[3].inner_html(),
             date: td_array[4]
@@ -143,7 +143,7 @@ impl SearchResult {
     }
 
     pub fn next_page(&mut self) -> Result<(), Box<dyn Error>> {
-        if (self.current_page > self.page_max) {
+        if self.current_page > self.page_max {
             return Err(Box::new(NyaaError::ImpossibleNext));
         }
         self.current_page += 1;
@@ -153,7 +153,7 @@ impl SearchResult {
     }
 
     pub fn previous_page(&mut self) -> Result<(), Box<dyn Error>> {
-        if (self.current_page - 1 < 1) {
+        if self.current_page - 1 < 1 {
             return Err(Box::new(NyaaError::ImpossiblePrevious));
         }
         self.current_page -= 1;
