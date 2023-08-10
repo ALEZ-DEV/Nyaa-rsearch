@@ -4,7 +4,7 @@ pub mod models;
 use models::{categories::Categories, error::NyaaError, torrent::Torrent};
 use scraper::{ElementRef, Html, Selector};
 
-const url: &str = "https://nyaa.si";
+const URL: &str = "https://nyaa.si";
 
 fn build_url(input: &str, category: &Categories, page: &i64) -> String {
     let research = format!("q={}", input);
