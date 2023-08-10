@@ -138,7 +138,7 @@ impl SearchResult {
             "------first torrent------\n{}\n-------------------------\n",
             self.torrents[0].info()
         );
-        let other_nbr_torrent = format!("{} other torrent\n", self.torrents.len());
+        let other_nbr_torrent = format!("{} torrent found in total\n", self.torrents.len());
         format!("{search}{category}{page}{max_page}{first_torrent}{other_nbr_torrent}")
     }
 
