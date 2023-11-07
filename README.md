@@ -14,8 +14,14 @@ use std::error::Error;
 use nyaa_rsearch::{models::categories, search}; // import required function
 
 pub fn main() -> Result<(), Box<dyn Error>> {
-    //research by name and category
-    let search_result = search("Houseki No Kuni", categories::Categories::Anime).unwrap();
+    //create the SearchInput with the search information
+    let input = SearchInput::new(
+        "Houseki No Kuni".to_string(),
+        1,
+        categories::Categories::Anime,
+    )?;
+    //research
+    let search_result = search(input).unwrap();
     //Display the result of the research
     println!("{}", search_result.info());
 
@@ -51,8 +57,14 @@ use std::error::Error;
 use nyaa_rsearch::{models::categories, search}; // import required function
 
 pub fn main() -> Result<(), Box<dyn Error>> {
-    //research by name and category
-    let mut search_result = search("Houseki No Kuni", categories::Categories::Anime).unwrap();
+    //create the SearchInput with the search information
+    let input = SearchInput::new(
+        "Houseki No Kuni".to_string(),
+        1,
+        categories::Categories::Anime,
+    )?;
+    //research
+    let mut search_result = search(input).unwrap();
     search_result.next_page()?; // go to next page
     // search_result.previous_page()? // go to previous page
     println!("{}", search_result.info()); //Display the result of the research
@@ -93,4 +105,4 @@ cargo add nyaa-rsearch
 
 ## Contribute
 
-Any improvement or issue is welcome for help this library to improve on it stability
+Any improvement or issue is welcome for help this library to improve on it's stability
