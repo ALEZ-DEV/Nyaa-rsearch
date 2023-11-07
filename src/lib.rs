@@ -14,8 +14,12 @@ fn build_url(input: &str, category: &Categories, page: &i64) -> String {
     format!("{}/?{}&{}&{}", URL, research, category, page)
 }
 
-pub fn search(input: &str, category: Categories) -> Result<SearchResult, Box<dyn Error>> {
-    let query = build_url(input, &category, &0);
+pub fn search(search_input: SearchInput) -> Result<SearchResult, Box<dyn Error>> {
+    let query = build_url(
+        &search_input.search_input,
+        &search_input.category_input,
+        &search_input.page_input,
+    );
     let response = reqwest::blocking::get(query)?.text()?;
 
     let document = Html::parse_document(&response);
@@ -23,9 +27,9 @@ pub fn search(input: &str, category: Categories) -> Result<SearchResult, Box<dyn
     let all_torrent = get_all_torrent(&document)?;
 
     let result = SearchResult {
-        search: input.to_string(),
-        category: category,
-        current_page: 1,
+        search: search_input.search_input,
+        category: search_input.category_input,
+        current_page: search_input.page_input,
         page_max: max_pagination,
         torrents: all_torrent,
     };
@@ -104,6 +108,31 @@ fn get_all_torrent(document: &Html) -> Result<Vec<Torrent>, Box<dyn Error>> {
     }
 
     Ok(result)
+}
+
+#[derive(Debug)]
+pub struct SearchInput {
+    search_input: String,
+    page_input: i64,
+    category_input: Categories,
+}
+
+impl SearchInput {
+    pub fn new(
+        search_input: String,
+        page_input: i64,
+        category_input: Categories,
+    ) -> Result<Self, NyaaError> {
+        if page_input <= 0 {
+            return Err(NyaaError::ImpossiblePagination);
+        }
+
+        Ok(SearchInput {
+            search_input: search_input,
+            page_input: page_input,
+            category_input: category_input,
+        })
+    }
 }
 
 #[derive(Debug)]

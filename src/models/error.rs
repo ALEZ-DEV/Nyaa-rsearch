@@ -2,6 +2,7 @@
 pub enum NyaaError {
     ImpossibleNext,
     ImpossiblePrevious,
+    ImpossiblePagination,
 }
 
 impl std::error::Error for NyaaError {}
@@ -16,6 +17,9 @@ impl std::fmt::Display for NyaaError {
                 f,
                 "You have surely try to go lower than page 1 (what are you doing bro??!)"
             ),
+            NyaaError::ImpossiblePagination => {
+                write!(f, "You're trying to go in a page that not existe")
+            }
         }
     }
 }
