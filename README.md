@@ -50,7 +50,7 @@ nbrs of approved -> 2807
 ```
 ### Async version
 
-<detail>
+<details>
 <summary>Click to expand</summary>
 
 ```rust
@@ -76,7 +76,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
 }
 ```
 
-</detail>
+</details>
 
 ***
 
