@@ -137,11 +137,11 @@ impl SearchInput {
 
 #[derive(Debug)]
 pub struct SearchResult {
-    search: String,
-    category: Categories,
-    current_page: i64,
-    page_max: i64,
-    torrents: Vec<Torrent>,
+    pub search: String,
+    pub category: Categories,
+    pub current_page: i64,
+    pub page_max: i64,
+    pub torrents: Vec<Torrent>,
 }
 
 impl SearchResult {
