@@ -11,7 +11,7 @@ A rust library for search Torrent on nyaa.si
 ### Simple research
 ```rust
 use std::error::Error; 
-use nyaa_rsearch::{models::categories, search}; // import required function
+use nyaa_rsearch::{blocking ,models::categories, search}; // import required function
 
 pub fn main() -> Result<(), Box<dyn Error>> {
     //create the SearchInput with the search information
@@ -21,7 +21,7 @@ pub fn main() -> Result<(), Box<dyn Error>> {
         categories::Categories::Anime,
     )?;
     //research
-    let search_result = search(input).unwrap();
+    let search_result = blocking::search(input).unwrap();
     //Display the result of the research
     println!("{}", search_result.info());
 
@@ -48,13 +48,42 @@ nbrs of approved -> 2807
 -------------------------
 75 torrent found in total
 ```
+### Async version
+
+<detail>
+<summary>Click to expand</summary>
+
+```rust
+use nyaa_rsearch::{r#async as func, models::categories, SearchInput};
+use std::error::Error; // import required function
+use tokio::macros;
+
+
+#[tokio::main]
+pub async fn main() -> Result<(), Box<dyn Error>> {
+    //create the SearchInput with the search information
+    let input = SearchInput::new(
+        "Houseki No Kuni".to_string(),
+        1,
+        categories::Categories::Anime,
+    )?;
+    //research
+    let mut search_result = func::search(input).await?;
+    //Display the result of the research
+    println!("{}", search_result.info());
+
+    Ok(())
+}
+```
+
+</detail>
 
 ***
 
 ### Change page
 ```rust
 use std::error::Error; 
-use nyaa_rsearch::{models::categories, search}; // import required function
+use nyaa_rsearch::{blocking, models::categories, search}; // import required function
 
 pub fn main() -> Result<(), Box<dyn Error>> {
     //create the SearchInput with the search information
@@ -64,8 +93,8 @@ pub fn main() -> Result<(), Box<dyn Error>> {
         categories::Categories::Anime,
     )?;
     //research
-    let mut search_result = search(input).unwrap();
-    search_result.next_page()?; // go to next page
+    let mut search_result = blocking::search(input).unwrap();
+    search_result.blocking_next_page()?; // go to next page
     // search_result.previous_page()? // go to previous page
     println!("{}", search_result.info()); //Display the result of the research
 
