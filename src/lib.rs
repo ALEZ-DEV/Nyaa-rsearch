@@ -1,6 +1,9 @@
 use std::error::Error;
 
 pub mod models;
+pub mod blocking;
+pub mod r#async;
+
 use models::{categories::Categories, error::NyaaError, torrent::Torrent};
 use scraper::{ElementRef, Html, Selector};
 
@@ -12,29 +15,6 @@ fn build_url(input: &str, category: &Categories, page: &i64) -> String {
     let page = format!("p={}", page);
 
     format!("{}/?{}&{}&{}", URL, research, category, page)
-}
-
-pub fn search(search_input: SearchInput) -> Result<SearchResult, Box<dyn Error>> {
-    let query = build_url(
-        &search_input.search_input,
-        &search_input.category_input,
-        &search_input.page_input,
-    );
-    let response = reqwest::blocking::get(query)?.text()?;
-
-    let document = Html::parse_document(&response);
-    let max_pagination = get_max_pagination(&document)?;
-    let all_torrent = get_all_torrent(&document)?;
-
-    let result = SearchResult {
-        search: search_input.search_input,
-        category: search_input.category_input,
-        current_page: search_input.page_input,
-        page_max: max_pagination,
-        torrents: all_torrent,
-    };
-
-    Ok(result)
 }
 
 fn get_max_pagination(document: &Html) -> Result<i64, Box<dyn Error>> {
@@ -145,19 +125,6 @@ pub struct SearchResult {
 }
 
 impl SearchResult {
-    fn request(&mut self) -> Result<(), Box<dyn Error>> {
-        let query = build_url(&self.search, &self.category, &self.current_page);
-
-        let response = reqwest::blocking::get(query)?.text()?;
-
-        let document = Html::parse_document(&response);
-        let all_torrent = get_all_torrent(&document)?;
-
-        self.torrents = all_torrent;
-
-        Ok(())
-    }
-
     pub fn info(&self) -> String {
         let search = format!("search -> {}\n", self.search);
         let category = format!("category -> {:?}\n", self.category);
@@ -171,22 +138,68 @@ impl SearchResult {
         format!("{search}{category}{page}{max_page}{first_torrent}{other_nbr_torrent}")
     }
 
-    pub fn next_page(&mut self) -> Result<(), Box<dyn Error>> {
-        if self.current_page > self.page_max {
-            return Err(Box::new(NyaaError::ImpossibleNext));
-        }
-        self.current_page += 1;
-        self.request()?;
+    fn blocking_request(&mut self) -> Result<(), Box<dyn Error>> {
+        let query = build_url(&self.search, &self.category, &self.current_page);
+
+        let response = reqwest::blocking::get(query)?.text()?;
+
+        let document = Html::parse_document(&response);
+        let all_torrent = get_all_torrent(&document)?;
+
+        self.torrents = all_torrent;
 
         Ok(())
     }
 
-    pub fn previous_page(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn blocking_next_page(&mut self) -> Result<(), Box<dyn Error>> {
+        if self.current_page > self.page_max {
+            return Err(Box::new(NyaaError::ImpossibleNext));
+        }
+        self.current_page += 1;
+        self.blocking_request()?;
+
+        Ok(())
+    }
+
+    pub fn blocking_previous_page(&mut self) -> Result<(), Box<dyn Error>> {
         if self.current_page - 1 < 1 {
             return Err(Box::new(NyaaError::ImpossiblePrevious));
         }
         self.current_page -= 1;
-        self.request()?;
+        self.blocking_request()?;
+
+        Ok(())
+    }
+
+    async fn async_request(&mut self) -> Result<(), Box<dyn Error>> {
+        let query = build_url(&self.search, &self.category, &self.current_page);
+
+        let response = reqwest::get(query).await?.text().await?;
+
+        let document = Html::parse_document(&response);
+        let all_torrent = get_all_torrent(&document)?;
+
+        self.torrents = all_torrent;
+
+        Ok(())
+    }
+
+    pub async fn next_page(&mut self) -> Result<(), Box<dyn Error>> {
+        if self.current_page > self.page_max {
+            return Err(Box::new(NyaaError::ImpossibleNext));
+        }
+        self.current_page += 1;
+        self.async_request().await?;
+
+        Ok(())
+    }
+
+    pub async fn previous_page(&mut self) -> Result<(), Box<dyn Error>> {
+        if self.current_page - 1 < 1 {
+            return Err(Box::new(NyaaError::ImpossiblePrevious));
+        }
+        self.current_page -= 1;
+        self.async_request().await?;
 
         Ok(())
     }

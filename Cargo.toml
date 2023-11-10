@@ -8,3 +8,4 @@ license = "MIT"
 [dependencies]
 reqwest = { version = "0.11.18", features = ["blocking"] }
 scraper = "0.17.1"
+tokio = { version = "1.34.0", features = ["full"] }
