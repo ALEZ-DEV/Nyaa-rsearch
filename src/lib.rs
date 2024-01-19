@@ -90,6 +90,28 @@ fn get_all_torrent(document: &Html) -> Result<Vec<Torrent>, Box<dyn Error>> {
     Ok(result)
 }
 
+fn is_page_empty(document: &Html) -> bool {
+    let div_selector = Selector::parse(r#"div[class="container"]"#).unwrap();
+    let h3_selector = Selector::parse("h3").unwrap();
+
+    let div_list = document.select(&div_selector).collect::<Vec<ElementRef>>();
+    let div = div_list.get(1);
+    match div {
+        Some(d) => {
+            let h3 = d.select(&h3_selector).next();
+            match h3 {
+                Some(h3) => {
+                    return h3.inner_html() == "No results found";
+                }
+                None => {}
+            }
+        }
+        None => {}
+    }
+
+    false
+}
+
 #[derive(Debug)]
 pub struct SearchInput {
     search_input: String,
@@ -125,17 +147,26 @@ pub struct SearchResult {
 }
 
 impl SearchResult {
+
+    //I know this function is a little bit useless, but it's more simple for debugging,
+    //you can delete this function if you want, just pls notify me
     pub fn info(&self) -> String {
         let search = format!("search -> {}\n", self.search);
         let category = format!("category -> {:?}\n", self.category);
         let page = format!("page -> {}\n", self.current_page);
         let max_page = format!("max page -> {}\n", self.page_max);
-        let first_torrent = format!(
-            "------first torrent------\n{}\n-------------------------\n",
-            self.torrents[0].info()
-        );
-        let other_nbr_torrent = format!("{} torrent found in total\n", self.torrents.len());
-        format!("{search}{category}{page}{max_page}{first_torrent}{other_nbr_torrent}")
+
+        if self.torrents.len() != 0 {
+            let first_torrent = format!(
+                "------first torrent------\n{}\n-------------------------\n",
+                self.torrents[0].info()
+            );
+            let other_nbr_torrent = format!("{} torrent found in total\n", self.torrents.len());
+            format!("{search}{category}{page}{max_page}{first_torrent}{other_nbr_torrent}")
+        } else {
+            let empty_torrent = "------no torrent found------".to_string();
+            format!("{search}{category}{page}{max_page}{empty_torrent}")
+        }
     }
 
     fn blocking_request(&mut self) -> Result<(), Box<dyn Error>> {
