@@ -22,15 +22,20 @@ fn get_max_pagination(document: &Html) -> Result<i64, Box<dyn Error>> {
     let li_selector = Selector::parse("li")?;
     let a_selector = Selector::parse("a")?;
 
-    let ul = document.select(&pagination_selector).next().unwrap();
+    let ul = document.select(&pagination_selector).next();
 
-    let li_array: Vec<ElementRef> = ul.select(&li_selector).collect();
-    Ok(li_array[li_array.len() - 2]
-        .select(&a_selector)
-        .next()
-        .unwrap()
-        .inner_html()
-        .parse::<i64>()?)
+    match ul {
+        Some(ul) => {
+            let li_array: Vec<ElementRef> = ul.select(&li_selector).collect();
+            Ok(li_array[li_array.len() - 2]
+                .select(&a_selector)
+                .next()
+                .unwrap()
+                .inner_html()
+                .parse::<i64>()?)
+        }
+        None => Ok(1)
+    }
 }
 
 fn get_all_torrent(document: &Html) -> Result<Vec<Torrent>, Box<dyn Error>> {
