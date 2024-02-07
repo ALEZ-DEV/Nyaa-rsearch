@@ -6,6 +6,11 @@ pub mod r#async;
 
 use models::{categories::Categories, error::NyaaError, torrent::Torrent};
 use scraper::{ElementRef, Html, Selector};
+use regex::Regex;
+
+// WARNING !!!
+// This code is literally garbage ! (normal, I parse html)
+// I will refactor this code one day...                         I hope I will :(
 
 const URL: &str = "https://nyaa.si";
 
@@ -61,7 +66,10 @@ fn get_all_torrent(document: &Html) -> Result<Vec<Torrent>, Box<dyn Error>> {
             name_index = 1;
         }
 
+        let id_regex = Regex::new(r"(?m)\d+").unwrap();
+
         let torrent = Torrent {
+            nyaa_id: id_regex.captures_iter(&a_name[name_index].value().attr("href").unwrap().to_string()).collect::<Vec<_>>().get(0).unwrap().get(0).unwrap().as_str().parse::<i64>().unwrap(),
             name: a_name[name_index]
                 .value()
                 .attr("title")

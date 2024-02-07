@@ -2,6 +2,7 @@ use super::categories::Categories;
 
 #[derive(Debug)]
 pub struct Torrent {
+    pub nyaa_id: i64,
     pub name: String,
     pub category: Categories,
     pub torrent_file: String,
@@ -15,6 +16,7 @@ pub struct Torrent {
 
 impl Torrent {
     pub fn info(&self) -> String {
+        let id = format!("nyaa id -> {}\n", self.nyaa_id);
         let name = format!("name -> {}\n", self.name);
         let category = format!("category -> {:?}\n", self.category);
         let torrent_link = format!("torrent download link -> {}\n", self.torrent_file);
@@ -25,7 +27,7 @@ impl Torrent {
         let leechers = format!("nbrs of leechers -> {}\n", self.leechers);
         let approved = format!("nbrs of approved -> {}\n", self.approved);
         format!(
-            "{name}{category}{torrent_link}{magnet_link}{size}{date}{seeders}{leechers}{approved}"
+            "{id}{name}{category}{torrent_link}{magnet_link}{size}{date}{seeders}{leechers}{approved}"
         )
     }
 }
